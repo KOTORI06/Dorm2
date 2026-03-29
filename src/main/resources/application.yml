@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: dorm_repair_sys
+  datasource:
+    url: jdbc:mysql://localhost:3306/dorm_repair_sys?useSSL=false&serverTimezone=UTC&characterEncoding=utf-8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  #自动扫描该包下所有类，并将类名（首字母小写）作为别名
+  type-aliases-package: com.repairsystem.entity
+  #指定 MyBatis Mapper XML 文件的位置
+  #classpath: - 表示从类路径下查找（即 src/main/resources 目录）
+  #mapper/ - resources 下的 mapper 文件夹
+  #*.xml - 通配符，匹配该目录下所有 .xml 文件
+  mapper-locations: classpath:mapper/*.xml

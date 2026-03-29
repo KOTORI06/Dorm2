@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace: 绑定对应的 Mapper 接口全限定名-->
+<mapper namespace="com.repairsystem.mapper.RepairOrderMapper">
+    <!--
+       insert 标签：定义插入操作的 SQL 语句
+       属性说明：
+       - id: 对应 Mapper 接口中的方法名（必须一致）
+       - parameterType: 参数类型（实体类别名或全限定名）
+       - useGeneratedKeys="true": 使用数据库自增主键
+       - keyProperty: 将生成的主键值回填到实体类的哪个属性
+    -->
+    <insert id="insertRepairOrder" parameterType="repairOrder" useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO repair_order (student_id, device_type, description, status)
+        VALUES (#{studentId}, #{deviceType}, #{description}, #{status})
+    </insert>
+    <!--
+       delete 标签：定义删除操作的 SQL 语句
+       属性说明：
+       - id: 对应 Mapper 接口中的方法名
+
+       【模板】
+       <delete id="方法名" parameterType="参数类型">
+           DELETE FROM 表名 WHERE 条件字段 = #{参数名}
+       </delete>
+
+       【用途】
+       - 根据主键或其他条件删除记录
+       - 返回受影响的行数
+    -->
+    <delete id="deleteRepairOrder">
+        DELETE FROM repair_order WHERE order_id = #{orderId}
+    </delete>
+    <!--
+       update 标签：定义更新操作的 SQL 语句
+       【模板】
+       <update id="方法名" parameterType="参数类型">
+           UPDATE 表名 SET 字段 1 = #{属性 1}, 字段 2 = #{属性 2} WHERE 条件字段 = #{参数名}
+       </update>
+       【用途】
+       - 更新单个或多个字段
+       - 返回受影响的行数
+    -->
+    <update id="updateRepairStatus">
+        UPDATE repair_order SET status = #{status} WHERE order_id = #{orderId}
+    </update>
+    <!--
+       select 标签：定义查询操作的 SQL 语句
+       属性说明：
+       - id: 对应 Mapper 接口中的方法名
+       - resultType: 返回值类型（实体类别名或全限定名）
+       【模板】
+       <select id="方法名" resultType="返回类型" parameterType="参数类型">
+           SELECT 字段列表 FROM 表名 WHERE 条件
+       </select>
+
+       【用途】
+       - 查询单条或多条记录
+       - 自动映射到 Java 对象
+    -->
+    <!--通过报修单工号查询报修单-->
+    <select id="selectRepairOrderById" resultType="repairOrder">
+        SELECT * FROM repair_order WHERE order_id = #{orderId}
+    </select>
+    <!--
+        带排序的查询：
+        ORDER BY create_time DESC - 按创建时间降序排列（最新的在前）
+        【用途】
+        - 查询某个学生的所有报修记录
+        - 结果按时间倒序显示
+    -->
+    <!--根据学生ID查询报修单并按创建时间降序排序-->
+    <select id="selectRepairsByStudentId" resultType="repairOrder">
+        SELECT * FROM repair_order WHERE student_id = #{studentId} ORDER BY create_time DESC
+    </select>
+    <!--
+        查询所有记录：
+        无条件筛选，返回全部数据
+        【用途】
+        - 管理员查看所有报修单
+        - 通常配合分页插件使用
+    -->
+    <select id="selectAllRepairs" resultType="repairOrder">
+        SELECT * FROM repair_order ORDER BY create_time DESC
+    </select>
+    <!--
+       动态 SQL 查询：支持条件筛选
+       【where 标签】
+       - 自动添加 WHERE 关键字
+       - 自动去除开头的 AND 或 OR
+       - 如果内部没有内容，不生成 WHERE 子句
+
+       【if 标签】
+       - test 属性：条件表达式
+       - 满足条件时才包含该 SQL 片段
+
+       【动态 SQL 模板】
+       <select id="方法名" resultType="返回类型">
+           SELECT * FROM 表名
+           <where>
+               <if test="条件 1 != null and 条件 1 != ''">
+                   AND 字段 1 = #{参数 1}
+               </if>
+               <if test="条件 2 != null">
+                   AND 字段 2 = #{参数 2}
+               </if>
+           </where>
+       </select>
+
+       【用途】
+       - 多条件组合查询
+       - 参数可选，灵活筛选
+       - 避免 SQL 注入
+   -->
+    <select id="selectRepairsByCondition" resultType="repairOrder">
+        SELECT * FROM repair_order
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+</mapper>

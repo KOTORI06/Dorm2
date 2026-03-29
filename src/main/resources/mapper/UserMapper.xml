@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace: 绑定对应的 Mapper 接口全限定名（必须与接口路径一致）-->
+<!--【规范】namespace = Mapper 接口的全限定名-->
+<mapper namespace="com.repairsystem.mapper.UserMapper">
+    <!--
+        select 标签：定义查询操作的 SQL 语句
+        属性说明：
+        - id: 对应 Mapper 接口中的方法名（selectUserById）
+        - resultType: 返回值类型（使用在 mybatis-config.xml 中配置的别名 "User"）
+        【模板】
+        <select id="方法名" resultType="返回类型" parameterType="参数类型">
+            SELECT 字段列表 FROM 表名 WHERE 条件字段 = #{参数名}
+        </select>
+        【用途】
+        - 根据学工号查询用户信息
+        - 返回单个 User 对象或 null
+
+        【参数传递】
+        - 单个参数时，#{id} 直接引用参数值
+        - 参数名必须与接口方法参数名一致
+    -->
+    <select id="selectUserById" resultType="user">
+        SELECT * FROM user WHERE id = #{id}
+    </select>
+    <!--
+       insert 标签：定义插入操作的 SQL 语句
+
+       属性说明：
+       - id: 对应 Mapper 接口中的方法名（insertUser）
+       - parameterType: 参数类型（使用实体类别名 "User"）
+       【模板】
+       <insert id="方法名" parameterType="实体类">
+           INSERT INTO 表名 (列 1, 列 2, 列 3) VALUES (#{属性 1}, #{属性 2}, #{属性 3})
+       </insert>
+       【用途】
+       - 插入新的用户记录到数据库
+       - 返回受影响的行数（成功返回 1）
+       【属性映射规则】
+       - #{property} 会自动调用实体的 getter 方法
+       - 例如：#{password} → user.getPassword()
+       【注意】
+       - 此处的 id 是手动指定的（非自增主键）
+       - 如果是自增主键，需要添加：useGeneratedKeys="true" keyProperty="id"
+    -->
+    <insert id="insertUser" parameterType="user">
+        INSERT INTO user (id, password, role) VALUES (#{id}, #{password}, #{role})
+    </insert>
+    <!--
+       update 标签：定义更新操作的 SQL 语句
+       属性说明：
+       - id: 对应 Mapper 接口中的方法名（updateUserDormInfo）
+       - parameterType: 未显式指定，MyBatis 会自动推断为 Map
+       【模板】
+       <update id="方法名" parameterType="参数类型">
+           UPDATE 表名 SET 字段 1 = #{属性 1}, 字段 2 = #{属性 2} WHERE 条件字段 = #{参数名}
+       </update>
+       【用途】
+       - 更新用户的宿舍信息（楼栋号和房间号）
+       - 返回受影响的行数（成功返回 1）
+
+       【多参数传递】
+       当接口方法有多个参数时：
+       int updateUserDormInfo(String userId, String dormBuilding, String dormRoom);
+
+       MyBatis 会将这些参数包装成 Map：
+       - userId → Map 的键
+       - dormBuilding → Map 的键
+       - dormRoom → Map 的键
+
+       【字段映射】
+       - dorm_building（数据库字段，下划线命名）
+       - dormBuilding（Java 属性，驼峰命名）
+       - MyBatis 会自动处理这种映射（如果开启了 mapUnderscoreToCamelCase）
+    -->
+    <update id="updateUserDormInfo">
+        UPDATE user SET dorm_building = #{dormBuilding}, dorm_room = #{dormRoom} WHERE id = #{userId}
+    </update>
+    <!--
+        update 标签：更新用户密码
+        【用途】
+        - 修改用户的登录密码
+        - 通常在用户忘记密码或主动修改密码时使用
+
+        【安全建议】
+        - 实际项目中，newPassword 应该是加密后的密文
+        - 不应直接存储明文密码
+
+        【执行流程】
+        1. 验证旧密码是否正确（在 Service 层完成）
+        2. 调用此方法更新密码
+        3. 返回受影响行数判断是否成功
+    -->
+    <update id="updatePassword">
+        UPDATE user SET password = #{newPassword} WHERE id = #{userId}
+    </update>
+</mapper>
