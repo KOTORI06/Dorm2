@@ -1,7 +1,9 @@
 package com.repairsystem.controller;
+import com.repairsystem.entity.LoginInfo;
 import com.repairsystem.entity.Result;
 import com.repairsystem.entity.User;
 import com.repairsystem.service.UserService;
+import com.repairsystem.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,8 @@ public class ConsoleController {
     //防止意外被修改为其他对象
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     // 登录
     @PostMapping("/login")
@@ -28,7 +32,9 @@ public class ConsoleController {
 
         if (tempuser != null) {
             log.info("登录成功！");
-            return Result.success("登录成功", tempuser);
+            String token = jwtUtil.generateToken(tempuser.getId(), tempuser.getRole().toString());
+            LoginInfo loginInfo = new LoginInfo(tempuser.getId(), tempuser.getRole().toString(), token);
+            return Result.success("登录成功", loginInfo);
         } else {
             log.info("登录失败，账号或密码错误！");
             return Result.error("登录失败，账号或密码错误");

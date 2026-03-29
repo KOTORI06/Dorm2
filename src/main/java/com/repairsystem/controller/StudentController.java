@@ -55,9 +55,9 @@ public class StudentController {
     }
     //查看我的报修记录111
     @GetMapping
-    private Result viewMyRepairRecords(@RequestBody User user) {
+    private Result viewMyRepairRecords(String id) {
         //获取当前用户的报修记录集合
-        List<RepairOrder> orders = repairOrderService.getRepairsByStudentId(user.getId());
+        List<RepairOrder> orders = repairOrderService.getRepairsByStudentId(id);
         //判断集合是否为空
         if (orders.isEmpty()) {
             log.info("暂无报修记录。");
