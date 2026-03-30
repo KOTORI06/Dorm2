@@ -5,6 +5,7 @@ import com.repairsystem.constant.RepairStatusEnum;
 import com.repairsystem.entity.RepairOrder;
 import com.repairsystem.entity.User;
 import com.repairsystem.service.UserService;
+import com.repairsystem.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,25 @@ public class StudentController {
     private RepairOrderService repairOrderService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     //绑定或修改宿舍信息111
+    /**检查角色身份
+     *验证学号
+     */
     @PutMapping("/dorm")
-    private Result bindOrUpdateDorm(@RequestBody User user) {
+    private Result bindOrUpdateDorm(@RequestBody User user,@RequestParam String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("STUDENT")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
+        //检查学号
+        if(!user.getId().equals(jwtUtil.getUserIdFromToken(token))){
+            log.info("学号错误！");
+            return Result.error("学号错误！");
+        }
         //调用服务层方法更新数据库
         boolean success = userService.updateDormInfo(user);
         if (success) {
@@ -36,7 +52,12 @@ public class StudentController {
     }
     //创建报修单111
     @PostMapping
-    private Result createRepairOrder(@RequestBody RepairOrder order) {
+    private Result createRepairOrder(@RequestBody RepairOrder order,@RequestParam String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("STUDENT")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
         User User = userService.getUserById(order.getStudentId());
         //报修前检查是否已绑定宿舍
         if (User.getDormBuilding() == null || User.getDormRoom() == null) {
@@ -55,7 +76,17 @@ public class StudentController {
     }
     //查看我的报修记录111
     @GetMapping
-    private Result viewMyRepairRecords(String id) {
+    private Result viewMyRepairRecords(String id,String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("STUDENT")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
+        //检查学号
+        if(!id.equals(jwtUtil.getUserIdFromToken(token))){
+            log.info("学号错误！");
+            return Result.error("学号错误！");
+        }
         //获取当前用户的报修记录集合
         List<RepairOrder> orders = repairOrderService.getRepairsByStudentId(id);
         //判断集合是否为空
@@ -68,14 +99,16 @@ public class StudentController {
     }
     //取消报修单111
     @PutMapping("/cancel")
-    private Result cancelRepairOrder(@RequestBody RepairOrder order) {
-        if (order.getOrderId() == 0) {
-            return Result.error("请重新输入报修单ID");
+    private Result cancelRepairOrder(@RequestBody RepairOrder order,@RequestParam String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("STUDENT")){
+            log.info("权限不足");
+            return Result.error("权限不足");
         }
         //获取目标报修单对象
         RepairOrder oldOrder = repairOrderService.getRepairOrderById(order.getOrderId());
         //检查该订单是否属于当前学生
-        if (oldOrder == null || !oldOrder.getStudentId().equals(order.getStudentId())) {
+        if (oldOrder == null || !oldOrder.getStudentId().equals(jwtUtil.getUserIdFromToken(token))) {
             log.info("报修单不存在或您无权操作此单。");
             return Result.error("报修单不存在或您无权操作此单。");
         }
@@ -90,7 +123,17 @@ public class StudentController {
     }
     //修改密码111
     @PutMapping("/password")
-    private Result changePassword(@RequestBody User user) {
+    private Result changePassword(@RequestBody User user,@RequestParam String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("STUDENT")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
+        //检查学号
+        if(!user.getId().equals(jwtUtil.getUserIdFromToken(token))){
+            log.info("学号错误！");
+            return Result.error("学号错误！");
+        }
         //调用 Service 更新密码
         User oldUser = userService.getUserById(user.getId());
         Result result = userService.updatePassword(user.getId(), oldUser.getPassword(), user.getPassword());

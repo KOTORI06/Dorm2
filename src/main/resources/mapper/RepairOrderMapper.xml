@@ -11,8 +11,8 @@
        - keyProperty: 将生成的主键值回填到实体类的哪个属性
     -->
     <insert id="insertRepairOrder" parameterType="repairOrder" useGeneratedKeys="true" keyProperty="orderId">
-        INSERT INTO repair_order (student_id, device_type, description, status)
-        VALUES (#{studentId}, #{deviceType}, #{description}, #{status})
+        INSERT INTO repair_order (student_id, device_type, description, status, create_time, update_time, image_url)
+        VALUES (#{studentId}, #{deviceType}, #{description}, #{status}, #{createTime}, #{updateTime}, #{imageUrl})
     </insert>
     <!--
        delete 标签：定义删除操作的 SQL 语句
