@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
                 return Result.error("用户不存在！");
             }
             //检查原密码是否正确
-            if (!oldPwd.equals(user.getPassword())) {
+            if (!PasswordUtil.check(oldPwd, user.getPassword())) {
                 log.info("原密码错误！");
                 return Result.error("原密码错误！");
             }

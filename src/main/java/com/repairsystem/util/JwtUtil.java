@@ -12,7 +12,8 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "123456";
+
+    private static final String SECRET_KEY = "ThisIsASecretKeyForJWTSigningWith256BitsLength!@#$%";
     private static final long EXPIRATION_TIME = 24 * 60 * 60 * 1000;
 
     /**

@@ -5,6 +5,7 @@ import com.repairsystem.constant.RepairStatusEnum;
 import com.repairsystem.entity.RepairOrder;
 import com.repairsystem.entity.User;
 import com.repairsystem.service.UserService;
+import com.repairsystem.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +20,18 @@ public class AdminController {
     private RepairOrderService repairOrderService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     //查看所有报修单（带状态筛选功能）111
     @GetMapping
-    private Result viewAllRepairOrders(@RequestParam(value = "status", required = false) String status) {
+    private Result viewAllRepairOrders(@RequestParam(value = "status", required = false) String status,String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("ADMIN")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
+
         List<RepairOrder> orders;
         if (status != null && !status.isEmpty()) {
             //筛选状态
@@ -41,7 +50,13 @@ public class AdminController {
     }
     //查看报修单详细信息111
     @GetMapping("/{orderId}")
-    private Result viewRepairOrderDetail(@PathVariable Integer orderId) {
+    private Result viewRepairOrderDetail(@PathVariable Integer orderId,String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("ADMIN")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
+
         //获取目标报修单对象
         RepairOrder order = repairOrderService.getRepairOrderById(orderId);
         //判断目标报修单对象是否为空
@@ -53,7 +68,13 @@ public class AdminController {
     }
     //更新报修单状态111
     @PostMapping
-    private Result updateRepairOrderStatus(@RequestBody RepairOrder order) {
+    private Result updateRepairOrderStatus(@RequestBody RepairOrder order,@RequestParam String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("ADMIN")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
+
         //获取目标报修单对象
         RepairOrder oldOrder = repairOrderService.getRepairOrderById(order.getOrderId());
         //判断目标报修单对象是否存在
@@ -68,14 +89,24 @@ public class AdminController {
     }
     //删除报修单111
     @DeleteMapping
-    private Result deleteRepairOrder(Integer orderId) {
+    private Result deleteRepairOrder(Integer orderId,String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("ADMIN")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
 
         Result result = repairOrderService.deleteRepairOrder(orderId);
         return result;
     }
     //修改密码111
     @PutMapping
-    private Result changePassword(@RequestBody User user) {
+    private Result changePassword(@RequestBody User user,@RequestParam String token) {
+        //检查Token角色身份
+        if(!jwtUtil.getRoleFromToken(token).equals("ADMIN")){
+            log.info("权限不足");
+            return Result.error("权限不足");
+        }
         //调用 Service 更新密码
         User oldUser = userService.getUserById(user.getId());
         Result result = userService.updatePassword(user.getId(), oldUser.getPassword(), user.getPassword());

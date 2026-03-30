@@ -13,6 +13,8 @@ public class RepairOrder {
     private RepairStatusEnum status;// 报修状态（待处理、处理中、已完成、已取消）
     private Date createTime;// 创建时间
     private Date updateTime;// 更新时间
+    private String imageUrl; // 新增：图片 URL
+
     //空参构造
     public RepairOrder() {
     }
@@ -81,6 +83,14 @@ public class RepairOrder {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+    //获取图片URL
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    //设置图片URL
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
     //获取报修单状态
     //返回报修单信息的字符串表示
     @Override
@@ -90,6 +100,7 @@ public class RepairOrder {
                 ", studentId='" + studentId + '\'' +
                 ", deviceType='" + deviceType + '\'' +
                 ", description='" + description + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", status=" + status +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
